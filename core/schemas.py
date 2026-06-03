@@ -68,6 +68,7 @@ class Operation(BaseModel):
     operands: List[str] = Field(..., description="Input registers (e.g., ['%0', '%1'])")
     result: str = Field(..., pattern=r"^%[a-zA-Z0-9_]+$|^none$", description="Output register (e.g., '%2') or 'none'")
     out_type: Optional[str] = Field(None, pattern=r"^(tensor<([0-9a-zA-Z]+x)+f(32|16)>|f32|f16|i32|i1|index)$", description="Specify ONLY for explicit casting (e.g., 'f16').")
+    value: Optional[Union[float, int, str]] = Field(None, description="Literal value for arith.constant or similar attribute-bearing ops. Ignored for normal ops.")
 
 class ScfYield(BaseModel):
     """
@@ -83,6 +84,7 @@ class ScfIf(BaseModel):
     opcode: str = Field("scf.if", description="Must always be 'scf.if'")
     condition: str = Field(..., description="Register containing the boolean (i1) condition")
     results: List[str] = Field(default_factory=list, description="Names of the registers where the scf.if result is stored")
+    result_types: Optional[List[str]] = Field(None, description="MLIR types of the results (e.g., ['f32', 'i32']). If omitted, translator will attempt inference from yields.")
     then_body: List[Union['Operation', 'ScfForLoop', 'ScfIf', 'ScfYield']] = Field(...)
     else_body: Optional[List[Union['Operation', 'ScfForLoop', 'ScfIf', 'ScfYield']]] = Field(None)
 

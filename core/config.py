@@ -43,3 +43,17 @@ GENERATION_PARAMS = {
 # --- MLOPS CONFIGURATION ---
 WANDB_PROJECT_NAME = "llm-mlir-compiler"
 WANDB_ENTITY = None  # Automatic if configured in the environment
+
+# --- PIPELINE MODES ---
+# Supported modes:
+#   "json"       -> Constrained JSON -> MLIR (existing pipeline)
+#   "raw"        -> Raw Triton Python generation, single shot
+#   "raw_retry"  -> Raw Triton Python generation with compiler-error feedback loop
+DEFAULT_MODE = os.getenv("PIPELINE_MODE", "json")
+
+# Retry config for raw + retry mode
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
+
+# --- EVALUATION CONFIG ---
+EVAL_OUTPUT_DIR = os.path.join(PROJECT_ROOT, "eval_results")
+os.makedirs(EVAL_OUTPUT_DIR, exist_ok=True)
