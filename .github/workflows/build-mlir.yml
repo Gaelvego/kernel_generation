@@ -1,0 +1,64 @@
+name: Build MLIR Python Bindings
+
+on:
+  workflow_dispatch:
+
+env:
+  LLVM_TAG: llvmorg-20.1.0
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq cmake ninja-build clang lld ccache
+
+      - name: Clone LLVM
+        run: |
+          git clone --depth 1 --branch ${{ env.LLVM_TAG }} https://github.com/llvm/llvm-project.git
+
+      - name: Configure LLVM
+        run: |
+          mkdir -p llvm-project/build
+          cmake -G Ninja -S llvm-project/llvm -B llvm-project/build \
+            -DLLVM_ENABLE_PROJECTS="mlir" \
+            -DLLVM_BUILD_EXAMPLES=OFF \
+            -DLLVM_BUILD_TOOLS=OFF \
+            -DLLVM_TARGETS_TO_BUILD="Native" \
+            -DLLVM_ENABLE_ASSERTIONS=OFF \
+            -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/tmp/llvm-install \
+            -DPython3_EXECUTABLE=$(which python)
+
+      - name: Build & install
+        run: |
+          cmake --build llvm-project/build --target mlir-python-bindings -j$(nproc)
+          cmake --build llvm-project/build --target install
+
+      - name: Package
+        run: |
+          tar czf mlir-pybindings.tar.gz -C /tmp llvm-install
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vmlir-20.1.0
+          name: MLIR Python Bindings 20.1.0
+          body: |
+            Prebuilt MLIR Python bindings for Ubuntu x86_64.
+            Use this in Colab to skip the 45-minute build.
+          files: mlir-pybindings.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
