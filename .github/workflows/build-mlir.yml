@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq cmake ninja-build clang lld ccache
-          pip install pybind11
+          pip install pybind11 nanobind
 
       - name: Clone LLVM
         run: |
