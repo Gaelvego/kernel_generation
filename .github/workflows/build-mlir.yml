@@ -62,3 +62,4 @@ jobs:
           files: mlir-pybindings.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# Trigger Actions re-index
