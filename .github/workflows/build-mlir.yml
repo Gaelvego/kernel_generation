@@ -45,7 +45,7 @@ jobs:
 
       - name: Build & install
         run: |
-          cmake --build llvm-project/build --target mlir-python-bindings -j$(nproc)
+          cmake --build llvm-project/build -j$(nproc)
           cmake --build llvm-project/build --target install
 
       - name: Package
