@@ -24,7 +24,7 @@ Using a virtual environment is required to isolate project dependencies and avoi
 
 ```bash
 # Clone the repository
-git clone https://github.com/seradotcom/gpu-kernel-generation.git
+git clone https://github.com/Gaelvego/kernel_generation.git
 cd llm-mlir-compiler
 
 # Create a Python 3.10 virtual environment

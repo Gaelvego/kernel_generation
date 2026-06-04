@@ -11,10 +11,15 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LLVM_PROJECT_DIR = os.path.join(PROJECT_ROOT, "llvm-project")
 MLIR_BINDINGS_PATH = os.path.join(LLVM_PROJECT_DIR, "build", "tools", "mlir", "python_packages", "mlir_core")
 
+# Colab fallback path
+COLAB_MLIR_PATH = "/content/llvm-project/build/tools/mlir/python_packages/mlir_core"
+
 if os.path.exists(MLIR_BINDINGS_PATH):
     sys.path.append(MLIR_BINDINGS_PATH)
+elif os.path.exists(COLAB_MLIR_PATH):
+    sys.path.append(COLAB_MLIR_PATH)
 else:
-    print(f"[Warning] Native MLIR binding not found at {MLIR_BINDINGS_PATH}. Ensure LLVM is compiled.")
+    print(f"[Warning] Native MLIR binding not found at {MLIR_BINDINGS_PATH} or {COLAB_MLIR_PATH}. Ensure LLVM is compiled.")
 
 # --- API KEYS ---
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
@@ -55,5 +60,5 @@ DEFAULT_MODE = os.getenv("PIPELINE_MODE", "json")
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 
 # --- EVALUATION CONFIG ---
-EVAL_OUTPUT_DIR = os.path.join(PROJECT_ROOT, "eval_results")
+EVAL_OUTPUT_DIR = os.getenv("COLAB_EVAL_DIR", os.path.join(PROJECT_ROOT, "eval_results"))
 os.makedirs(EVAL_OUTPUT_DIR, exist_ok=True)
