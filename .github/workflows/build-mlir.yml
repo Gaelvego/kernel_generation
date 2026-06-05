@@ -5,11 +5,11 @@ on:
 
 env:
   LLVM_TAG: llvmorg-20.1.0
-  PYTHON_VERSION: "3.10"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,11 +19,19 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Cache LLVM build
+        uses: actions/cache@v3
+        with:
+          path: llvm-project/build
+          key: ${{ runner.os }}-llvm-${{ env.LLVM_TAG }}-${{ env.PYTHON_VERSION }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-llvm-${{ env.LLVM_TAG }}-${{ env.PYTHON_VERSION }}-
+
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq cmake ninja-build clang lld ccache
-          pip install pybind11 nanobind
+          python -m pip install pybind11 nanobind
 
       - name: Clone LLVM
         run: |
@@ -52,15 +60,20 @@ jobs:
         run: |
           tar czf mlir-pybindings.tar.gz -C /tmp llvm-install
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlir-pybindings
+          path: mlir-pybindings.tar.gz
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: vmlir-20.1.0
           name: MLIR Python Bindings 20.1.0
           body: |
-            Prebuilt MLIR Python bindings for Ubuntu x86_64.
+            Prebuilt MLIR Python bindings for Ubuntu x86_64 (Ubuntu 22.04, GLIBC 2.35, Python 3.12).
             Use this in Colab to skip the 45-minute build.
           files: mlir-pybindings.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# Trigger Actions re-index
