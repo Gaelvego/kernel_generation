@@ -11,8 +11,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LLVM_PROJECT_DIR = os.path.join(PROJECT_ROOT, "llvm-project")
 MLIR_BINDINGS_PATH = os.path.join(LLVM_PROJECT_DIR, "build", "tools", "mlir", "python_packages", "mlir_core")
 
-# Colab fallback path
-COLAB_MLIR_PATH = "/content/llvm-project/build/tools/mlir/python_packages/mlir_core"
+# Colab fallback path (GitHub Actions tarball)
+COLAB_MLIR_PATH = "/content/llvm-prebuilt/llvm-install/python_packages/mlir_core"
 
 if os.path.exists(MLIR_BINDINGS_PATH):
     sys.path.append(MLIR_BINDINGS_PATH)
@@ -36,8 +36,6 @@ OLLAMA_ENDPOINT = "http://localhost:11434/api/chat"
 USE_REMOTE_MODEL = os.getenv("USE_REMOTE_MODEL", "0") == "1"
 REMOTE_MODEL_URL = os.getenv("GEMMA_API_URL", "https://unsubtly-dash-economy.ngrok-free.dev")
 
-
-
 # Strict parameters for code generation
 GENERATION_PARAMS = {
     "max_tokens": 4096,
@@ -49,16 +47,3 @@ GENERATION_PARAMS = {
 WANDB_PROJECT_NAME = "llm-mlir-compiler"
 WANDB_ENTITY = None  # Automatic if configured in the environment
 
-# --- PIPELINE MODES ---
-# Supported modes:
-#   "json"       -> Constrained JSON -> MLIR (existing pipeline)
-#   "raw"        -> Raw Triton Python generation, single shot
-#   "raw_retry"  -> Raw Triton Python generation with compiler-error feedback loop
-DEFAULT_MODE = os.getenv("PIPELINE_MODE", "json")
-
-# Retry config for raw + retry mode
-MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
-
-# --- EVALUATION CONFIG ---
-EVAL_OUTPUT_DIR = os.getenv("COLAB_EVAL_DIR", os.path.join(PROJECT_ROOT, "eval_results"))
-os.makedirs(EVAL_OUTPUT_DIR, exist_ok=True)

@@ -1,0 +1,28 @@
+{
+  "reasoning": "Simple vector addition. I will use an scf.for loop to iterate over the elements. The loop variable is %i. I load elements from %arg0 and %arg1 using tensor.extract, add them with arith.addf, and store the result.",
+  "code": {
+    "function_name": "vector_add",
+    "arguments": [
+      {"name": "%arg0", "type": "tensor<1024xf32>"},
+      {"name": "%arg1", "type": "tensor<1024xf32>"}
+    ],
+    "operations": [
+      {
+        "opcode": "scf.for",
+        "lower_bound": 0,
+        "upper_bound": 1024,
+        "step": 1,
+        "loop_var": "%i",
+        "iter_args": {},
+        "results": [],
+        "body": [
+          {"opcode": "tensor.extract", "operands": ["%arg0", "%i"], "result": "%a", "out_type": "f32"},
+          {"opcode": "tensor.extract", "operands": ["%arg1", "%i"], "result": "%b", "out_type": "f32"},
+          {"opcode": "arith.addf", "operands": ["%a", "%b"], "result": "%c", "out_type": "f32"},
+          {"opcode": "scf.yield", "operands": []}
+        ]
+      }
+    ],
+    "returns": ["%arg0"]
+  }
+}
